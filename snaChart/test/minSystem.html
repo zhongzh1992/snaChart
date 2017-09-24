@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>minSystem</title>
+    <script type="text/javascript" src="esl.js"></script>
+</head>
+<body>
+    <script type="text/javascript">
+    require.config({
+        packages: [
+            {
+                name: 'zrender',
+                location: '../src/zrender',
+                main: 'zrender'
+            }
+        ]
+    });
+
+    require(
+        [
+            'zrender',
+            'zrender/graphic/Text',
+            'zrender/graphic/shape/Circle',
+            'zrender/graphic/shape/Line',
+            'zrender/svg/svg',
+            'zrender/container/Group'
+        ],
+        function(zrender,Text,CircleShape, Line) {
+            // 初始化zrender
+            var dom = document.getElementById('main');
+            var zr = zrender.init(dom,{renderer: 'svg'});
+            var circle1 = new CircleShape({
+                shape: {
+                    cx: 200,
+                    cy: 200,
+                    r: 20
+                },
+                style: {
+                    fill: 'blue'
+                },
+                draggable: true
+            });
+
+            var circle2 = new CircleShape({
+                shape: {
+                    cx: 400,
+                    cy: 400,
+                    r: 20
+                },
+                style: {
+                    fill: 'blue'
+                },
+                draggable: true
+            });
+
+            var line = new Line({
+                shape: {
+                    x1: 200,
+                    y1: 200,
+                    x2: 400,
+                    y2: 400
+                },
+                style: {
+                    fill: null,
+                    stroke: '#000',
+                    lineWidth:3
+                },
+                draggable: true
+            });
+
+            var text1 = new Text({
+                style: {
+                    x: 200,
+                    y: 200,
+                    text: 'node1',
+                    width: 50,
+                    height: 50,
+                    textFill: '#c0f',
+                    textFont: '18px Microsoft Yahei'
+                },
+                draggable: true
+            });
+
+            circle1.on('mouseover', function () {
+                zr.dom.style.cursor = 'move';
+            });
+            circle1.on('mouseout', function () {
+                zr.dom.style.cursor = 'default';
+            });
+
+            circle2.on('mouseover', function () {
+                zr.dom.style.cursor = 'move';
+            }).on('mouseout', function () {
+                zr.dom.style.cursor = 'default';
+            }).on('dragenter', function () {
+                this.setStyle('fill', 'red');
+            }).on('dragleave', function () {
+                this.setStyle('fill', 'black');
+            }).on('drop', function () {
+                this.setStyle('fill', 'green');
+            });
+
+            line.on('mouseover', function () {
+                zr.dom.style.cursor = 'move';
+            }).on('mouseout', function () {
+                zr.dom.style.cursor = 'default';
+            });
+
+            zr.add(circle2);
+            zr.add(circle1);
+            zr.add(line);
+            zr.add(text1);
+
+        }
+    );
+    </script>
+    <div id="main" style="width:1000px;height:800px;"></div>
+
+</body>
+</html>
