@@ -6,6 +6,8 @@ define(function (require) {
 
     var zrender = require('zrender');
     var Model = require('./Model');
+    var CircleLayout = require('./layout/circle/CircleLayout');
+    var GridLayout = require('./layout/grid/GridLayout');
 
     function snaChart(dom, theme, opts) {
         this.opts = opts || {};
@@ -32,6 +34,8 @@ define(function (require) {
     };
 
     snaChart.prototype.setOption = function (option) {
+        // CircleLayout.getLayout(option,{x:0,y:0},{x:1000,y:800});
+        GridLayout.getLayout(option,{x:0,y:0},{x:1000,y:800});
         var model = Model.getModel(option);
         addElements(this._zr,model);
 
