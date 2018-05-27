@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>snaChart</title>
     <script type="text/javascript" src="esl.js"></script>
     <script type="text/javascript" src="data/testdata.js"></script>
@@ -16,9 +16,9 @@
                 main: 'zrender'
             },
             {
-                name:'snaChart',
-                location:'../src',
-                main:'snaChart'
+                name: 'snaChart',
+                location: '../src',
+                main: 'snaChart'
             }
         ]
     });
@@ -28,24 +28,22 @@
                 'snaChart',
                 'zrender'
             ],
-            function(snaChart) {
-                var option = testData;
-//                var option = {
-//                    nodes:[
-//                            {id:"node1",x:200,y:200,name:"node1"},
-//                            {id:"node2",x:400,y:400,name:"node2"}
-//                    ],
-//                    edges:[
-//                        {id:"edge1",source:"node1",target:"node2"}
-//                    ]
-//                };
+            function (snaChart) {
+                var option = {
+                    data: testData,
+                    width: 500,
+                    height: 500,
+                    layout: {
+                        type: "circle"
+                    }
+                };
                 var dom = document.getElementById('main');
-                var sna = new snaChart(dom,{},{});
+                var sna = new snaChart(dom, {}, {});
                 sna.setOption(option);
             }
     );
 </script>
-<div id="main" style="width:1000px;height:800px;"></div>
+<div id="main" style="width:1000px;height:1000px;"></div>
 
 </body>
 </html>
