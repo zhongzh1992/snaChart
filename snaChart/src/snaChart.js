@@ -8,6 +8,8 @@ define(function (require) {
     var Model = require('./Model');
     var CircleLayout = require('./layout/circle/CircleLayout');
     var GridLayout = require('./layout/grid/GridLayout');
+    var TreeLayout = require('./layout/tree/TreeLayout');
+    var RandomLayout = require('./layout/random/RandomLayout');
 
     function snaChart(dom, theme, opts) {
         this.opts = opts || {};
@@ -22,37 +24,58 @@ define(function (require) {
     }
 
     snaChart.prototype.getDom = function () {
-
+        return this._dom;
     };
 
     snaChart.prototype.getZr = function () {
-
+        return this._zr;
     };
 
     snaChart.prototype.getOption = function () {
-
+        return this.opts;
     };
 
     snaChart.prototype.setOption = function (option) {
-        // CircleLayout.getLayout(option,{x:0,y:0},{x:1000,y:800});
-        GridLayout.getLayout(option,{x:0,y:0},{x:1000,y:800});
-        var model = Model.getModel(option);
-        addElements(this._zr,model);
+        var data = option.data;
+        var area = {
+            topLeft: {x: 0, y: 0},
+            bottomRight: {x: this.getWidth(), y: this.getHeight()}
+        };
+        this.applyLayout(data, area, option.layout.type);
+        var model = Model.getModel(data);
+        addElements(this._zr, model);
 
-        function addElements(zr,model) {
-            for(var i=0;i<model.length;i++){
+        function addElements(zr, model) {
+            for (var i = 0; i < model.length; i++) {
                 var ele = model[i];
                 zr.add(ele);
             }
         }
     };
 
-    snaChart.prototype.getWidth = function (option) {
-
+    snaChart.prototype.getWidth = function () {
+        return this.opts.width ? this.opts.width : 500;
     };
 
-    snaChart.prototype.getHeight = function (option) {
+    snaChart.prototype.getHeight = function () {
+        return this.opts.height ? this.opts.height : 500;
+    };
 
+    snaChart.prototype.applyLayout = function (data, area, type, other) {
+        switch (type) {
+            case "grid":
+                GridLayout.getLayout(data, area.topLeft, area.bottomRight);
+                break;
+            case "circle":
+                CircleLayout.getLayout(data, area.topLeft, area.bottomRight);
+                break;
+            case "tree":
+                TreeLayout.getLayout(data, area.topLeft, area.bottomRight);
+                break;
+            default:
+                RandomLayout.getLayout(data, area.topLeft, area.bottomRight);
+                break;
+        }
     };
 
     return snaChart;

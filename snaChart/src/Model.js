@@ -8,7 +8,7 @@ define(function (require) {
     var CircleShape = require('zrender/graphic/shape/Circle');
     var Line = require('zrender/graphic/shape/Line');
 
-    var Model = function (option) {
+    var Model = function (data) {
         this.elements = [];
         this.nodesMap = {};
     };
@@ -43,7 +43,7 @@ define(function (require) {
         for (var i = 0; i < edges.length; i++) {
             var edge = edges[i];
             var sourceX = this.nodesMap[edge.source].x;
-            var sourceY =  this.nodesMap[edge.source].y;
+            var sourceY = this.nodesMap[edge.source].y;
             var targetX = this.nodesMap[edge.target].x;
             var targetY = this.nodesMap[edge.target].y;
             var shapeEdge = new Line({
@@ -88,14 +88,15 @@ define(function (require) {
 
     function createNodesMap(nodes) {
         var nodesMap = {};
-        for(var i=0;i<nodes.length;i++){
+        for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             nodesMap[node.id] = node;
         }
         return nodesMap;
     }
 
-    /**
+    /**https://github.com/zhongzh1992/snaChart_repo.git
+     * git@github.com:zhongzh1992/snaChart_repo.git
      *
      * @param option :{nodes:[{id:'0',x:100,y:100,name:'node0'}],edges:[]}
      */
