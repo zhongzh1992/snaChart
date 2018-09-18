@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>snaChart</title>
+    <script type="text/javascript" src="esl.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+    require.config({
+        packages: [
+            {
+                name: 'zrender',
+                location: '../src/zrender',
+                main: 'zrender'
+            }
+        ]
+    });
+
+    require(
+            [
+                'zrender',
+                'zrender/graphic/Text',
+                'zrender/graphic/shape/Circle',
+                'zrender/graphic/shape/Line',
+
+                'zrender/container/Group',
+                'zrender/svg/svg',
+            ],
+            function (zrender, Text, Circle, Line, Group) {
+                // 初始化zrender
+                var dom = document.getElementById('main');
+                var zr = zrender.init(dom, {renderer: 'svg'});
+                var edgeCnt = 10;
+                var nodeCnt = 10;
+                var circles = [];
+                for (var i = 0; i < nodeCnt; i++) {
+                    circles.push(new Circle({
+                                shape: {
+                                    r: 15
+                                },
+                                position: [800 * Math.random(), 800 * Math.random()],
+                                style: {
+                                    fill: 'blue'
+                                },
+                                draggable: true
+                            }
+                    ));
+                }
+                var sourceId, targetId;
+                var line;
+                var lines = [];
+                for (var i = 0; i < edgeCnt; i++) {
+                    sourceId = Math.floor(Math.random() * circles.length);
+                    targetId = Math.floor(Math.random() * circles.length);
+                    line = new Line({
+                        shape: {
+                            x1: circles[sourceId].position[0],
+                            y1: circles[sourceId].position[1],
+                            x2: circles[targetId].position[0],
+                            y2: circles[targetId].position[1]
+                        },
+                        style: {
+                            stroke: "green",
+                            lineWidth: 2
+                        },
+                        zlevel: -1
+                    });
+                    lines.push(line);
+
+                    (function (l, source, target) {
+                        watchNodesPositionChange(source.position, 0, {
+                            set: function (value) {
+                                l.attr({shape: {x1: value}});
+                            }
+                        });
+                        watchNodesPositionChange(source.position, 1, {
+                            set: function (value) {
+                                l.attr({shape: {y1: value}});
+                            }
+                        });
+                        watchNodesPositionChange(target.position, 0, {
+                            set: function (value) {
+                                l.attr({shape: {x2: value}});
+                            }
+                        });
+                        watchNodesPositionChange(target.position, 1, {
+                            set: function (value) {
+                                l.attr({shape: {y2: value}});
+                            }
+                        });
+                    })(line, circles[sourceId], circles[targetId]);
+                }
+
+                circles.forEach(function (circle) {
+                    zr.add(circle);
+                });
+                lines.forEach(function (line) {
+                    zr.add(line);
+                });
+
+                function watchNodesPositionChange(obj, attrName, params) {
+                    var getFunc = params.get;
+                    var setFunc = params.set;
+                    var p = {attr: obj[attrName]};
+                    var descriptor = Object.getOwnPropertyDescriptor(obj, attrName);
+                    var prevSet = descriptor.set;
+                    var prevGet = descriptor.get;
+                    Object.defineProperty(obj, attrName, {
+                        get: function () {
+                            if (prevGet) {
+                                prevGet(p.attr);
+                            }
+                            if (getFunc) {
+                                getFunc(p.attr);
+                            }
+                            return (p.attr);
+                        },
+                        set: function (val) {
+                            if (prevSet) {
+                                prevSet(val, p.attr);
+                            }
+                            if (setFunc) {
+                                setFunc(val, p.attr);
+                            }
+                            p.attr = val;
+                        }
+                    })
+                }
+
+            }
+    );
+</script>
+<div id="main" style="width:1000px;height:1000px;"></div>
+
+</body>
+</html>

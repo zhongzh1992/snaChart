@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>minSystem</title>
     <script type="text/javascript" src="esl.js"></script>
 </head>
 <body>
-    <script type="text/javascript">
+<script type="text/javascript">
     require.config({
         packages: [
             {
@@ -18,104 +18,148 @@
     });
 
     require(
-        [
-            'zrender',
-            'zrender/graphic/Text',
-            'zrender/graphic/shape/Circle',
-            'zrender/graphic/shape/Line',
-            'zrender/svg/svg',
-            'zrender/container/Group'
-        ],
-        function(zrender,Text,CircleShape, Line) {
-            // 初始化zrender
-            var dom = document.getElementById('main');
-            var zr = zrender.init(dom,{renderer: 'svg'});
-            var circle1 = new CircleShape({
-                shape: {
-                    cx: 200,
-                    cy: 200,
-                    r: 20
-                },
-                style: {
-                    fill: 'blue'
-                },
-                draggable: true
-            });
+            [
+                'zrender',
+                'zrender/graphic/Text',
+                'zrender/graphic/shape/Circle',
+                'zrender/graphic/shape/Line',
 
-            var circle2 = new CircleShape({
-                shape: {
-                    cx: 400,
-                    cy: 400,
-                    r: 20
-                },
-                style: {
-                    fill: 'blue'
-                },
-                draggable: true
-            });
+                'zrender/container/Group',
+                'zrender/svg/svg',
+            ],
+            function (zrender, Text, CircleShape, Line, Group) {
+                // 初始化zrender
+                var dom = document.getElementById('main');
+                var zr = zrender.init(dom, {renderer: 'svg'});
+                var line = new Line({
+                    shape: {
+                        x1: 200,
+                        y1: 200,
+                        x2: 400,
+                        y2: 400
+                    },
+                    style: {
+                        fill: null,
+                        stroke: '#000',
+                        lineWidth: 3
+                    },
+                    draggable: true
+                });
 
-            var line = new Line({
-                shape: {
-                    x1: 200,
-                    y1: 200,
-                    x2: 400,
-                    y2: 400
-                },
-                style: {
-                    fill: null,
-                    stroke: '#000',
-                    lineWidth:3
-                },
-                draggable: true
-            });
+                var circle1 = new CircleShape({
+                    shape: {
+                        cx: 200,
+                        cy: 200,
+                        r: 20
+                    },
+                    style: {
+                        fill: 'blue'
+                    },
+                    draggable: true,
+                    ondragstart: function (params) {
+                        console.log(params)
+                    },
+                    ondragend: function (params) {
+                        console.log(params)
+                        line.attr("shape", {
+                            x2: 400,
+                            y2: 400,
+                            x1: params.topTarget.position[0],
+                            y1: params.topTarget.position[1]
+                        });
+                    }
+                });
 
-            var text1 = new Text({
-                style: {
-                    x: 200,
-                    y: 200,
-                    text: 'node1',
-                    width: 50,
-                    height: 50,
-                    textFill: '#c0f',
-                    textFont: '18px Microsoft Yahei'
-                },
-                draggable: true
-            });
+                var circle2 = new CircleShape({
+                    shape: {
+                        cx: 400,
+                        cy: 400,
+                        r: 20
+                    },
+                    style: {
+                        fill: 'blue'
+                    },
+                    draggable: true,
+                    ondragstart: function (params) {
+                        console.log(params)
+                    },
+                    ondragend: function (params) {
+                        console.log(params)
+                    }
+                });
 
-            circle1.on('mouseover', function () {
-                zr.dom.style.cursor = 'move';
-            });
-            circle1.on('mouseout', function () {
-                zr.dom.style.cursor = 'default';
-            });
 
-            circle2.on('mouseover', function () {
-                zr.dom.style.cursor = 'move';
-            }).on('mouseout', function () {
-                zr.dom.style.cursor = 'default';
-            }).on('dragenter', function () {
-                this.setStyle('fill', 'red');
-            }).on('dragleave', function () {
-                this.setStyle('fill', 'black');
-            }).on('drop', function () {
-                this.setStyle('fill', 'green');
-            });
+                var text1 = new Text({
+                    style: {
+                        x: 200,
+                        y: 200,
+                        text: 'node1',
+                        width: 50,
+                        height: 50,
+                        textFill: '#c0f',
+                        textFont: '18px Microsoft Yahei'
+                    },
+                    draggable: true
+                });
 
-            line.on('mouseover', function () {
-                zr.dom.style.cursor = 'move';
-            }).on('mouseout', function () {
-                zr.dom.style.cursor = 'default';
-            });
+                circle1.on('mouseover', function () {
+                    zr.dom.style.cursor = 'move';
+                });
+                circle1.on('mouseout', function () {
+                    zr.dom.style.cursor = 'default';
+                });
 
-            zr.add(circle2);
-            zr.add(circle1);
-            zr.add(line);
-            zr.add(text1);
+                circle2.on('mouseover', function () {
+                    zr.dom.style.cursor = 'move';
+                }).on('mouseout', function () {
+                    zr.dom.style.cursor = 'default';
+                }).on('mouseup', function (data) {
+//                    console.log(data)
+//                    this.setStyle('fill', 'red');
+//                    circle1.attr("shape", {r: 300});
+                }).on('mousedown', function (data) {
+//                this.setStyle('fill', 'black');
+//                    console.log(data);
+//                circle1.attr("shape",{r:300});
+//                    line.attr("shape", {
+//                        lineWidth: 10
+//                    });
+                }).on('ondragend', function (data) {
+//                    console.log(data);
+//                    circle2.attr("shape", {r: 300});
+//                    line.attr("shape", {
+//                            x1: 200,
+//                            y1: 200,
+//                            x2: data.offsetX,
+//                            y2: data.offsetY
+//                        });
+                }).on('drop', function () {
+//                    this.setStyle('fill', 'green');
 
-        }
+                });
+
+                line.on('mouseover', function () {
+                    zr.dom.style.cursor = 'move';
+                }).on('mouseout', function () {
+                    zr.dom.style.cursor = 'default';
+                });
+                var g = new Group();
+                g.position[0] = 100;
+                g.position[1] = 100;
+                g.add(circle1);
+                g.add(circle2);
+                g.add(line);
+                zr.add(g);
+                zr.add(circle2);
+                zr.add(circle1);
+                zr.add(line);
+                zr.add(text1);
+                zr.add(g);
+
+            }
     );
-    </script>
-    <div id="main" style="width:1000px;height:800px;"></div>
+</script>
+<div id="main" style="width:1000px;height:800px;"></div>
 
 </body>
 </html>

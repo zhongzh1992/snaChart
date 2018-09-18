@@ -42,15 +42,14 @@ define(function (require) {
             bottomRight: {x: this.getWidth(), y: this.getHeight()}
         };
         this.applyLayout(data, area, option.layout.type);
-        var model = Model.getModel(data);
-        addElements(this._zr, model);
+        Model.addElements(this._zr, data);
 
-        function addElements(zr, model) {
-            for (var i = 0; i < model.length; i++) {
-                var ele = model[i];
-                zr.add(ele);
-            }
-        }
+        // function addElements(zr, model) {
+        //     for (var i = 0; i < model.length; i++) {
+        //         var ele = model[i];
+        //         zr.add(ele);
+        //     }
+        // }
     };
 
     snaChart.prototype.getWidth = function () {

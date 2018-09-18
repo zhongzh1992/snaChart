@@ -5,86 +5,150 @@ define(function (require) {
 
     var Text = require('zrender/graphic/Text');
     var Group = require('zrender/container/Group');
-    var CircleShape = require('zrender/graphic/shape/Circle');
+    var Circle = require('zrender/graphic/shape/Circle');
     var Line = require('zrender/graphic/shape/Line');
 
     var Model = function (data) {
-        this.elements = [];
-        this.nodesMap = {};
+        this.nodesElementsMap = {};
+        this.circles = [];
+        this.lines = [];
+        this.texts = [];
     };
 
     Model.prototype.setModel = function (option) {
-        this.nodesMap = createNodesMap(option.nodes);
-        this.addShapeTextToModel(option.nodes);
-        this.addShapeNodeToModel(option.nodes);
+        this.addShapeNodesToModel(option.nodes);
         this.addShapeEdgeToModel(option.edges);
+        this.addShapeTextToModel(option.nodes);
     };
 
-    Model.prototype.addShapeNodeToModel = function (nodes) {
+    Model.prototype.addShapeTextToModel = function (nodes) {
+        var PADDING = 10;
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
             var shapeText = new Text({
                 style: {
                     x: node.x,
-                    y: node.y,
+                    y: node.y + PADDING,
                     text: node.name,
                     width: 30,
                     height: 30,
                     textFill: '#c0f',
-                    textFont: '18px Microsoft Yahei'
+                    textFont: '10px Microsoft Yahei'
                 },
-                draggable: true
+                draggable: false,
+                zlevel: -1
             });
-            this.elements.push(shapeText);
+            this.texts.push(shapeText);
+            var element = this.nodesElementsMap[node.id];
+            (function (ele, text, padding) {
+                watchNodesPositionChange(ele.position, 0, {
+                    set: function (value) {
+                        text.attr({style: {x: value}});
+                    }
+                });
+                watchNodesPositionChange(ele.position, 1, {
+                    set: function (value) {
+                        text.attr({style: {y: value + padding}});
+                    }
+                })
+            })(element, shapeText, PADDING);
+
+
         }
     };
 
     Model.prototype.addShapeEdgeToModel = function (edges) {
+        var circles = this.nodesElementsMap;
         for (var i = 0; i < edges.length; i++) {
             var edge = edges[i];
-            var sourceX = this.nodesMap[edge.source].x;
-            var sourceY = this.nodesMap[edge.source].y;
-            var targetX = this.nodesMap[edge.target].x;
-            var targetY = this.nodesMap[edge.target].y;
-            var shapeEdge = new Line({
-                id: edge.id,
-                source: edge.source,
-                target: edge.target,
+            var sourceId = edge.source;
+            var targetId = edge.target;
+            var line = new Line({
                 shape: {
-                    x1: sourceX,
-                    y1: sourceY,
-                    x2: targetX,
-                    y2: targetY
+                    x1: circles[sourceId].position[0],
+                    y1: circles[sourceId].position[1],
+                    x2: circles[targetId].position[0],
+                    y2: circles[targetId].position[1]
                 },
                 style: {
-                    fill: null,
-                    stroke: '#000',
+                    stroke: "green",
                     lineWidth: 2
                 },
-                draggable: true
+                zlevel: -1
             });
-            this.elements.push(shapeEdge);
+            this.lines.push(line);
+
+            (function (l, source, target) {
+                watchNodesPositionChange(source.position, 0, {
+                    set: function (value) {
+                        l.attr({shape: {x1: value}});
+                    }
+                });
+                watchNodesPositionChange(source.position, 1, {
+                    set: function (value) {
+                        l.attr({shape: {y1: value}});
+                    }
+                });
+                watchNodesPositionChange(target.position, 0, {
+                    set: function (value) {
+                        l.attr({shape: {x2: value}});
+                    }
+                });
+                watchNodesPositionChange(target.position, 1, {
+                    set: function (value) {
+                        l.attr({shape: {y2: value}});
+                    }
+                });
+            })(line, circles[sourceId], circles[targetId]);
         }
     };
 
-    Model.prototype.addShapeTextToModel = function (nodes) {
+    Model.prototype.addShapeNodesToModel = function (nodes) {
         for (var i = 0; i < nodes.length; i++) {
             var node = nodes[i];
-            var shapeNode = new CircleShape({
-                id: node.id,
+            var shapeNode = new Circle({
                 shape: {
-                    cx: node.x,
-                    cy: node.y,
-                    r: 5
+                    r: 15
                 },
+                position: [node.x, node.y],
                 style: {
                     fill: 'blue'
                 },
                 draggable: true
             });
-            this.elements.push(shapeNode);
+            this.nodesElementsMap[node.id] = shapeNode;
+            this.circles.push(shapeNode);
         }
     };
+
+    function watchNodesPositionChange(obj, attrName, params) {
+        var getFunc = params.get;
+        var setFunc = params.set;
+        var p = {attr: obj[attrName]};
+        var descriptor = Object.getOwnPropertyDescriptor(obj, attrName);
+        var prevSet = descriptor.set;
+        var prevGet = descriptor.get;
+        Object.defineProperty(obj, attrName, {
+            get: function () {
+                if (prevGet) {
+                    prevGet(p.attr);
+                }
+                if (getFunc) {
+                    getFunc(p.attr);
+                }
+                return (p.attr);
+            },
+            set: function (val) {
+                if (prevSet) {
+                    prevSet(val, p.attr);
+                }
+                if (setFunc) {
+                    setFunc(val, p.attr);
+                }
+                p.attr = val;
+            }
+        })
+    }
 
     function createNodesMap(nodes) {
         var nodesMap = {};
@@ -106,7 +170,22 @@ define(function (require) {
         return model.elements;
     }
 
+    function addElements(zr, option) {
+        var model = new Model(option);
+        model.setModel(option);
+        model.circles.forEach(function (circle) {
+            zr.add(circle);
+        });
+        model.lines.forEach(function (line) {
+            zr.add(line);
+        });
+        model.texts.forEach(function (text) {
+            zr.add(text);
+        });
+    }
+
     return {
-        getModel: getModel
-    };
+        getModel: getModel,
+        addElements: addElements
+    }
 });
