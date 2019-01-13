@@ -1,4 +1,4 @@
-# snaChart_repo
+# snaChart
 snaChart，社会网络分析图形控件（Social Network Analysis，SNA）
 
 定位：纯javasript实现，基于百度zrender，数据驱动，具备强大分析功能的控件
